@@ -11,7 +11,7 @@ const filterBtn = document.querySelector("#filter-select");
 let oldInputValue;
 
 // Funções
-const saveTodo = (text) => {
+const saveTodo = (text, done = 0, save = 1) => {
    
     const todo = document.createElement("div");
     todo.classList.add("todo");
@@ -34,6 +34,14 @@ const saveTodo = (text) => {
     deleteBtn.classList.add("remove-todo");
     deleteBtn.innerHTML = ` <i class="fa-solid fa-xmark"></i>`;
     todo.appendChild(deleteBtn);
+
+    if(done) {
+        todo.classList.add("done")
+    }
+
+    if(save) {
+        saveTodoLocalStorage((text, done))
+    }
 
     todoList.appendChild(todo);
 
@@ -60,7 +68,7 @@ const updateTodo = (text) => {
     });
 };
 
-const getSearchTodos = (search) => {
+const getSearchdTodos = (search) => {
     const todos = document.querySelectorAll(".todo");
 
     todos.forEach((todo) => {
@@ -80,9 +88,28 @@ const filterTodos = (filterValue) => {
     const todos = document.querySelectorAll(".todo");
 
     switch(filterValue) {
+      case "all":
+        todos.forEach((todo) => (todo.style.display = "flex"));
+        break;
 
-    }
-}
+        case "done":
+        todos.forEach((todo) => todo.classList.contains("done")
+        ? (todo.style.display = "flex")
+        : (todo.style.display = "none")
+        );
+        break;
+
+        case "todo":
+            !todos.forEach((todo) => todo.classList.contains("done")
+            ? (todo.style.display = "flex")
+            : (todo.style.display = "none")
+        );
+        break;
+
+        default:
+            break;
+   }
+};
 
 // Eventos
 todoForm.addEventListener("submit", (e) => {
@@ -100,7 +127,7 @@ document.addEventListener("click", (e) => {
     const parentEl = targetEl.closest("div");
     let todoTitle;
     if(parentEl && parentEl.querySelector("h3")) {
-        todoTitle = parentEl.querySelector("h3").innerText;
+        todoTitle = parentEl.querySelector("h3").innerText || "";
     }
 
     if(targetEl.classList.contains("finish-todo")) {
@@ -138,7 +165,7 @@ editForm.addEventListener("submit", (e) => {
 searchInput.addEventListener("keyup", (e) => {
     const search = e.target.value;
 
-    getSearchTodos(search);
+    getSearchdTodos(search);
 });
 
 eraseBtn.addEventListener("click", (e) => {
@@ -153,3 +180,25 @@ filterBtn.addEventListener("chance", (e) => {
     const filterValue = e.target.value;
     filterTodos(filterValue);
 });
+
+//Local Storage
+const getTodosLocalStorage = () => {
+    const todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+    return todos;
+};
+const loadTodos = () => {
+    const todos = getTodosLocalStorage();
+    
+    todos.forEach((todo) => {
+        saveTodo(todo.text, todo.done, )
+    })
+}
+
+const saveTodoLocalStorage = (todo) => {
+   const todos = getTodosLocalStorage();
+
+   todos.push(todo);
+
+   localStorage.setItem("todos", JSON.stringify(todos));
+};
